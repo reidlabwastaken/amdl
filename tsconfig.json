@@ -1,0 +1,20 @@
+{
+    "compilerOptions": {
+        "target": "ESNext",
+        "module": "NodeNext",
+        "moduleResolution": "nodenext",
+        "incremental": true,
+        "strict": true,
+        "forceConsistentCasingInFileNames": true,
+        "verbatimModuleSyntax": true,
+        "esModuleInterop": true,
+        "skipLibCheck": true,
+        "baseUrl": "src",
+        "outDir": "dist",
+        // needed for `source-map-support`
+        // which adds source maps to stack traces
+        "sourceMap": true
+    },
+    "include": ["**/*"],
+    "exclude": ["dist", "result", "node_modules"] // result is from nix build
+}

@@ -1,0 +1,9 @@
+/dist
+/result
+/node_modules
+
+.env
+config.toml
+
+# the cache directory for songs
+/cache

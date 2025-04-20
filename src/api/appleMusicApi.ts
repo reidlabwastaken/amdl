@@ -18,8 +18,12 @@ export default class AppleMusicApi {
         this.http = axios.create({
             baseURL: ampApiUrl,
             headers: {
+                "Origin": appleMusicHomepageUrl,
                 "Media-User-Token": mediaUserToken,
-                "Origin": appleMusicHomepageUrl
+                // TODO: move somewhere else
+                // this is only used for `getWidevineLicense`
+                "x-apple-music-user-token": mediaUserToken,
+                "x-apple-renewal": true // do i wanna know what this does?
             },
             params: {
                 "l": language
@@ -28,7 +32,7 @@ export default class AppleMusicApi {
     }
 
     public async login(): Promise<void> {
-        this.http.defaults.headers["Authorization"] = `Bearer ${await getToken(appleMusicHomepageUrl)}`;
+        this.http.defaults.headers.common["Authorization"] = `Bearer ${await getToken(appleMusicHomepageUrl)}`;
     }
 
     async getSong<
@@ -57,16 +61,14 @@ export default class AppleMusicApi {
         trackId: string,
         trackUri: string,
         challenge: string
-    ): Promise<string> {
+    ): Promise<{ license: string | undefined }> { // dubious type, doesn't matter much
         return (await this.http.post(licenseApiUrl, {
-            params: {
-                challenge: challenge,
-                "key-system": "com.widevine.alpha",
-                uri: trackUri,
-                adamId: trackId,
-                isLibrary: false,
-                "user-initiated": true
-            }
+            challenge: challenge,
+            "key-system": "com.widevine.alpha",
+            uri: trackUri,
+            adamId: trackId,
+            isLibrary: false,
+            "user-initiated": true
         })).data;
     }
 }

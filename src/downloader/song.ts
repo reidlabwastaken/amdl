@@ -3,7 +3,7 @@ import * as log from "../log.js";
 import type { SongAttributes } from "../api/types/appleMusic/attributes.js";
 import hls, { Item } from "parse-hls";
 import axios from "axios";
-// TODO: remove
+import { getWidevineDecryptionKey } from "./keygen.js";
 import { select } from "@inquirer/prompts";
 
 // ugliest type ever
@@ -21,12 +21,14 @@ type HLS = ReturnType<typeof hls.default.parse>;
 // havent had this issue with the small pool i tested before late 2024. what ????
 // i don't get it.
 // i just tried another thing from 2022 ro 2023 and it worked fine
+// SOLVED. widevine keys are not always present in the m3u8 manifest that is default (you can see that in link above, thats why it exists)
+// OH. it doesn't seem to give the keys you want anyway LOLLLLLLL????
+// i'm sure its used for *SOMETHING* so i'll keep it
 
 // SUPER TODO: turn this all into a streaminfo class
 
-// this typing is dubious...
-// TODO: possibly just stop using an array; use union type on generic
-// TODO: add "legacy" fallback
+// SUPER TODO: add "legacy", would use stuff from webplayback, default to this
+// TODO: make widevine/fairplay optional (esp for above)
 async function getStreamInfo(trackMetadata: SongAttributes<["extendedAssetUrls"]>): Promise<void> {
     const m3u8Url = trackMetadata.extendedAssetUrls.enhancedHls;
     const m3u8 = await axios.get(m3u8Url, { responseType: "text" });
@@ -43,9 +45,7 @@ async function getStreamInfo(trackMetadata: SongAttributes<["extendedAssetUrls"]
     const playreadyPssh = getPlayreadyPssh(drmInfos, drmIds);
     const fairplayKey = getFairplayKey(drmInfos, drmIds);
 
-    log.debug("widevine pssh", widevinePssh);
-    log.debug("playready pssh", playreadyPssh);
-    log.debug("fairplay key", fairplayKey);
+    await getWidevineDecryptionKey(widevinePssh, "1615276490");
 }
 
 // i don't think i wanna write all of the values we need. annoying !
@@ -123,6 +123,5 @@ const getPlayreadyPssh = (drmInfos: DrmInfos, drmIds: string[]): string => getDr
 const getFairplayKey = (drmInfos: DrmInfos, drmIds: string[]): string => getDrmData(drmInfos, drmIds, "com.apple.streamingkeydelivery");
 
 // TODO: remove later, this is just for testing
-log.debug(await appleMusicApi.getWebplayback("1758429584"));
-await getStreamInfo((await appleMusicApi.getSong("1758429584")).data[0].attributes);
-
+log.debug(await appleMusicApi.getWebplayback("1615276490"));
+await getStreamInfo((await appleMusicApi.getSong("1615276490")).data[0].attributes);

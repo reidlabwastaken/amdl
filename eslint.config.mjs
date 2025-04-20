@@ -17,7 +17,7 @@ export default [
 
             // TODO: find a rule to make it so that relative imports are needed
             // this is because those pass type checking, and fails at runtime
-            // not very typescript
+            // not very typescript-coded (typescript shouldnt require runtime debugging, thats the point of it)
 
             "@typescript-eslint/explicit-function-return-type": "error",
             "@typescript-eslint/no-unused-vars": [

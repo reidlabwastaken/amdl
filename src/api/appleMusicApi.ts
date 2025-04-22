@@ -16,19 +16,15 @@ export default class AppleMusicApi {
     ) {
         this.storefront = storefront;
         this.http = axios.create({
-            baseURL: ampApiUrl,
-            headers: {
-                "Origin": appleMusicHomepageUrl,
-                "Media-User-Token": mediaUserToken,
-                // TODO: move somewhere else
-                // this is only used for `getWidevineLicense`
-                "x-apple-music-user-token": mediaUserToken,
-                "x-apple-renewal": true // do i wanna know what this does?
-            },
-            params: {
-                "l": language
-            }
+            baseURL: ampApiUrl
         });
+
+        this.http.defaults.headers.common["Origin"] = appleMusicHomepageUrl;
+        this.http.defaults.headers.common["Media-User-Token"] = mediaUserToken;
+        // yeah dude. awesome
+        // https://stackoverflow.com/a/54636780
+        this.http.defaults.params = {};
+        this.http.defaults.params["l"] = language;
     }
 
     public async login(): Promise<void> {
@@ -61,7 +57,7 @@ export default class AppleMusicApi {
         trackId: string,
         trackUri: string,
         challenge: string
-    ): Promise<{ license: string | undefined }> { // dubious type, doesn't matter much
+    ): Promise<{ license: string | undefined }> {
         return (await this.http.post(licenseApiUrl, {
             challenge: challenge,
             "key-system": "com.widevine.alpha",
@@ -69,6 +65,10 @@ export default class AppleMusicApi {
             adamId: trackId,
             isLibrary: false,
             "user-initiated": true
-        })).data;
+        }, { headers: {
+            // do these do anything.
+            "x-apple-music-user-token": this.http.defaults.headers.common["Media-User-Token"],
+            "x-apple-renewal": true
+        }})).data;
     }
 }

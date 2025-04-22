@@ -1,12 +1,16 @@
 [server]
-# can be a port...
+# can be a port (int)...
 # or a unix socket path (e.g. /tmp/sock)
 port = 2000
 
 [downloader]
+
+[downloader.cache]
 # where to store downloaded files (music, lyrics, etc.)
 # this directory will be created if it does not exist
-cache_dir = "cache"
+directory = "cache"
+# how long to keep downloaded files (in seconds)
+ttl = 3600 # (1 hour)
 
 [downloader.api]
 # two letter language code (ISO 639-1) and two letter country code (ISO 3166-1 alpha-2)

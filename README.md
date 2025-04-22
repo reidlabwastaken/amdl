@@ -10,9 +10,9 @@ a self-hostable web-ui apple music downloader widevine decryptor with questionab
 
 `MEDIA_USER_TOKEN` and `ITUA` are both from your apple music cookies
 
-`WIDEVINE_CLIENT_ID` however... oh boy. this thing kind of Sucks to obtain and i would totally recommend finding a not-so-legal spot you can obtain this from (in fact, i found one on github LOL), rather than extracting it yourself. if you want to do through the pain like i did, check [this guide](forum.videohelp.com/threads/408031-Dumping-Your-own-L3-CDM-with-Android-Studio) out!! once you have your `client_id.bin` file, convert it to base64 and slap it in the env var (`cat client_id.bin | base64 -w 0`)
+`WIDEVINE_CLIENT_ID` is uhm owie. this thing kind of Sucks to obtain and i would totally recommend finding a not-so-legal spot you can obtain this from (in fact, i found one on github LOL), rather than extracting it yourself. if you want to do through the pain like i did, check [this guide](forum.videohelp.com/threads/408031-Dumping-Your-own-L3-CDM-with-Android-Studio) out!! once you have your `client_id.bin` file, convert it to base64 and slap it in the env var (`cat client_id.bin | base64 -w 0`)
 
-`WIDEVINE_PRIVATE_KEY` is essentially the same process of obtainment, you'll get it from the same guide!! i'm not sure how to easily find one of these on the web... but i'm sure y'all can pull through. this is also in base64 (`cat private_key.pem | base64 -w 0`)
+`WIDEVINE_PRIVATE_KEY` is essentially the same process of obtainment, you'll get it from the same guide!! i'm not sure how to easily find one of these on the web, but i'm sure y'all end users (user count: 0 (TRVTHNVKE)) can pull through. this is also in base64 (`cat private_key.pem | base64 -w 0`)
 
 ### config
 

@@ -78,15 +78,7 @@ function log(level: Level, ...message: unknown[]): void {
     process.stdout.write(`${prefix} ${formatted.split("\n").join("\n" + prefix)}\n`);
 }
 
-export function debug(...message: unknown[]): void {
-    log(Level.Debug, ...message);
-}
-export function info(...message: unknown[]): void {
-    log(Level.Info, ...message);
-}
-export function warn(...message: unknown[]): void {
-    log(Level.Warn, ...message);
-}
-export function error(...message: unknown[]): void {
-    log(Level.Error, ...message);
-}
+export function debug(...message: unknown[]): void { log(Level.Debug, ...message); }
+export function info(...message: unknown[]): void { log(Level.Info, ...message); }
+export function warn(...message: unknown[]): void { log(Level.Warn, ...message); }
+export function error(...message: unknown[]): void { log(Level.Error, ...message); }

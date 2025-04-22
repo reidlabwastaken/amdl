@@ -4,12 +4,13 @@ import type { SongAttributes } from "../api/types/appleMusic/attributes.js";
 import hls, { Item } from "parse-hls";
 import axios from "axios";
 import { getWidevineDecryptionKey } from "./keygen.js";
+import { widevine, playready, fairplay } from "../constants/keyFormats.js";
 import { select } from "@inquirer/prompts";
 
 // ugliest type ever
 // this library is so bad
 // i wish pain on the person who wrote this /j :smile:
-type HLS = ReturnType<typeof hls.default.parse>;
+type M3u8 = ReturnType<typeof hls.default.parse>;
 
 // TODO: whole big thing, and a somewhat big issue
 // some files can just Not be downloaded
@@ -45,14 +46,16 @@ async function getStreamInfo(trackMetadata: SongAttributes<["extendedAssetUrls"]
     const playreadyPssh = getPlayreadyPssh(drmInfos, drmIds);
     const fairplayKey = getFairplayKey(drmInfos, drmIds);
 
-    await getWidevineDecryptionKey(widevinePssh, "1615276490");
+    const trackId = trackMetadata.playParams?.id;
+    if (trackId === undefined) { throw "track id is missing, this may indicate your song isn't accessable w/ your subscription!"; }
+
+    // TODO: make this a value in the class when we do that
+    log.info(await getWidevineDecryptionKey(widevinePssh, trackId));
 }
 
-// i don't think i wanna write all of the values we need. annoying !
 type DrmInfos = { [key: string]: { [key: string]: { "URI": string } }; };
-function getDrmInfos(m3u8Data: HLS): DrmInfos {
+function getDrmInfos(m3u8Data: M3u8): DrmInfos {
     // see `getAssetInfos` for the reason why this is so bad
-    // filthy. i should write my own m3u8 library that doesn't suck balls
     for (const line of m3u8Data.lines) {
         if (
             line.name === "sessionData" &&
@@ -60,6 +63,7 @@ function getDrmInfos(m3u8Data: HLS): DrmInfos {
         ) {
             const value = line.content.match(/VALUE="([^"]+)"/);
             if (!value) { throw "could not match for value!"; }
+            if (!value[1]) { throw "value is empty!"; }
 
             return JSON.parse(Buffer.from(value[1], "base64").toString("utf-8"));
         }
@@ -70,7 +74,8 @@ function getDrmInfos(m3u8Data: HLS): DrmInfos {
 
 // TODO: remove inquery for the codec, including its library, this is for testing
 // add a config option for preferred codec ?
-async function getPlaylist(m3u8Data: HLS): Promise<Item> {
+// or maybe in the streaminfo function
+async function getPlaylist(m3u8Data: M3u8): Promise<Item> {
     const masterPlaylists = m3u8Data.streamRenditions;
     const masterPlaylist = await select({
         message: "codec ?",
@@ -85,9 +90,9 @@ async function getPlaylist(m3u8Data: HLS): Promise<Item> {
 
 // TODO: check type more strictly
 // does it really exist? we never check,,
-// i don't think i wanna write all of the values we need. annoying !
+// filthy. i should write my own m3u8 library that doesn't suck balls
 type AssetInfos = { [key: string]: { "AUDIO-SESSION-KEY-IDS": string[]; }; }
-function getAssetInfos(m3u8Data: HLS): AssetInfos {
+function getAssetInfos(m3u8Data: M3u8): AssetInfos {
     // LOL??? THIS LIBRARY IS SO BAD
     // YOU CAN'T MAKE THIS SHIT UP
     // https://files.catbox.moe/ac0ps4.jpg
@@ -98,6 +103,7 @@ function getAssetInfos(m3u8Data: HLS): AssetInfos {
         ) {
             const value = line.content.match(/VALUE="([^"]+)"/);
             if (!value) { throw "could not match for value!"; }
+            if (!value[1]) { throw "value is empty!"; }
 
             return JSON.parse(Buffer.from(value[1], "base64").toString("utf-8"));
         }
@@ -118,10 +124,10 @@ function getDrmData(drmInfos: DrmInfos, drmIds: string[], drmKey: string): strin
     return drmInfo[drmKey].URI; // afaik this index is 100% safe?
 }
 
-const getWidevinePssh = (drmInfos: DrmInfos, drmIds: string[]): string => getDrmData(drmInfos, drmIds, "urn:uuid:edef8ba9-79d6-4ace-a3c8-27dcd51d21ed");
-const getPlayreadyPssh = (drmInfos: DrmInfos, drmIds: string[]): string => getDrmData(drmInfos, drmIds, "com.microsoft.playready");
-const getFairplayKey = (drmInfos: DrmInfos, drmIds: string[]): string => getDrmData(drmInfos, drmIds, "com.apple.streamingkeydelivery");
+const getWidevinePssh = (drmInfos: DrmInfos, drmIds: string[]): string => getDrmData(drmInfos, drmIds, widevine);
+const getPlayreadyPssh = (drmInfos: DrmInfos, drmIds: string[]): string => getDrmData(drmInfos, drmIds, playready);
+const getFairplayKey = (drmInfos: DrmInfos, drmIds: string[]): string => getDrmData(drmInfos, drmIds, fairplay);
 
 // TODO: remove later, this is just for testing
-log.debug(await appleMusicApi.getWebplayback("1615276490"));
+// log.debug(await appleMusicApi.getWebplayback("1615276490"));
 await getStreamInfo((await appleMusicApi.getSong("1615276490")).data[0].attributes);

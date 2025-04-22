@@ -35,7 +35,8 @@ app.use((err: HttpException, _req: Request, res: Response, _next: NextFunction) 
 // a bit gugly..
 
 await appleMusicApi.login().catch((err) => {
-    log.error("failed to login to apple music api", err);
+    log.error("failed to login to apple music api");
+    log.error(err);
     process.exit(1);
 });
 log.debug("logged in to apple music api");
@@ -44,16 +45,16 @@ try {
     const listener = app.listen(config.server.port, () => {
         const address = listener.address();
 
-        if (address === null) {
-            log.error("server is running on unknown address?? unreachable??");
-            process.exit(1);
-        }
+        // okay, afaik, this is (theoretically) completely unreachable
+        // if you're listening, you have to have an address
+        if (address === null) { process.exit(1); }
 
         else if (typeof address === "string") { log.info(`hosting on unix://${address}`); }
         else { log.info(`hosting on http://localhost:${address.port}`); }
     });
 } catch (err) {
-    log.error("failed to start server", err);
+    log.error("failed to start server");
+    log.error(err);
     process.exit(1);
 }
 
@@ -71,3 +72,4 @@ process.on("unhandledRejection", (err) => {
 // TODO: remove later
 // this is for testing purposes
 await import("./downloader/song.js");
+await import("./cache.js");

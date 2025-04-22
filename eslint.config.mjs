@@ -19,6 +19,8 @@ export default [
             // this is because those pass type checking, and fails at runtime
             // not very typescript-coded (typescript shouldnt require runtime debugging, thats the point of it)
 
+            // TODO: find a rule to make seperators on interfaces consistent
+
             "@typescript-eslint/explicit-function-return-type": "error",
             "@typescript-eslint/no-unused-vars": [
                 "error",

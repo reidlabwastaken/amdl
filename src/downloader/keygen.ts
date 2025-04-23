@@ -24,8 +24,8 @@ export async function getWidevineDecryptionKey(psshDataUri: string, trackId: str
             keyIds: [Buffer.from(dataUriToBuffer(psshDataUri).buffer).toString("hex")]
         });
 
-        log.warn("pssh was invalid, treating it as raw data");
-        log.warn("this should not throw an error, unless the pssh data is invalid, too");
+        log.warn("pssh was invalid, treating it as raw data (this is expected in the webplayback manifest)");
+        log.warn("this should not throw an error, unless the pssh data is actually invalid");
 
         pssh = Buffer.from(rebuiltPssh, "base64");
         session = new Session({ privateKey, identifierBlob }, pssh);

@@ -46,7 +46,7 @@ export default class AppleMusicApi {
 
     async getWebplayback(
         trackId: string
-    ): Promise<unknown> {
+    ): Promise<WebplaybackResponse> {
         return (await this.http.post(webplaybackApiUrl, {
             salableAdamId: trackId,
             language: config.downloader.api.language
@@ -57,7 +57,7 @@ export default class AppleMusicApi {
         trackId: string,
         trackUri: string,
         challenge: string
-    ): Promise<{ license: string | undefined }> {
+    ): Promise<WidevineLicenseResponse> {
         return (await this.http.post(licenseApiUrl, {
             challenge: challenge,
             "key-system": "com.widevine.alpha",
@@ -72,3 +72,8 @@ export default class AppleMusicApi {
         }})).data;
     }
 }
+
+// these are super special types
+// i'm not putting this in the ./types folder.
+export type WebplaybackResponse = { songList: { assets: { flavor: string, URL: string }[], songId: string }[] };
+export type WidevineLicenseResponse = { license: string | undefined };

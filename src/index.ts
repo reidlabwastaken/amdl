@@ -5,7 +5,7 @@ import * as log from "./log.js";
 import { appleMusicApi } from "./api/index.js";
 
 class HttpException extends Error {
-    public status?: number;
+    public readonly status?: number;
 
     constructor(status: number, message: string) {
         super(message);
@@ -71,5 +71,5 @@ process.on("unhandledRejection", (err) => {
 
 // TODO: remove later
 // this is for testing purposes
-await import("./downloader/song.js");
+await import("./downloader/streamInfo.js");
 await import("./cache.js");

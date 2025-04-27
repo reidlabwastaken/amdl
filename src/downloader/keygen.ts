@@ -19,7 +19,7 @@ export async function getWidevineDecryptionKey(psshDataUri: string, trackId: str
         // for some reason, if gotten from a webplayback manifest, the pssh is in a completely different format
         // well, somewhat. it's just the raw data, we have to rebuild the pssh
         const rebuiltPssh = psshTools.widevine.encodePssh({
-            contentId: "Hiiii", // lol?? i don't know what this is, random slop go!!!!
+            contentId: "meow", // this actually isn't even needed, but this library is stubborn
             dataOnly: false,
             keyIds: [Buffer.from(dataUriToBuffer(psshDataUri).buffer).toString("hex")]
         });

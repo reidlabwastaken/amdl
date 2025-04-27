@@ -7,6 +7,7 @@ import { getWidevineDecryptionKey } from "./keygen.js";
 import { widevine, playready, fairplay } from "../constants/keyFormats.js";
 import { select } from "@inquirer/prompts";
 import type { WebplaybackResponse } from "api/appleMusicApi.js";
+import { downloadSong } from "./index.js";
 
 // ugliest type ever
 // this library is so bad
@@ -27,24 +28,29 @@ type M3u8 = ReturnType<typeof hls.default.parse>;
 // OH. it doesn't seem to give the keys you want anyway LOLLLLLLL????
 // i'm sure its used for *SOMETHING* so i'll keep it
 
-export class StreamInfo {
+export default class StreamInfo {
     public readonly trackId: string;
+    public readonly streamUrl: string;
     public readonly widevinePssh: string | undefined;
     public readonly playreadyPssh: string | undefined;
     public readonly fairplayKey: string | undefined;
 
     private constructor(
         trackId: string,
+        streamUrl: string,
         widevinePssh: string | undefined,
         playreadyPssh: string | undefined,
         fairplayKey: string | undefined
     ) {
         this.trackId = trackId;
+        this.streamUrl = streamUrl;
         this.widevinePssh = widevinePssh;
         this.playreadyPssh = playreadyPssh;
         this.fairplayKey = fairplayKey;
     }
 
+    // TODO: why can't we decrypt widevine ones with this?
+    // we get a valid key.. but it doesn't work :-(
     public static async fromTrackMetadata(trackMetadata: SongAttributes<["extendedAssetUrls"]>): Promise<StreamInfo> {
         log.warn("the track metadata method is experimental, and may not work or give correct values!");
         log.warn("if there is a failure--use a codec that uses the webplayback method");
@@ -70,6 +76,7 @@ export class StreamInfo {
 
         return new StreamInfo(
             trackId,
+            m3u8Url, // TODO: make this keep in mind the CODEC, yt-dlp will shit itself if not supplied i think
             widevinePssh,
             playreadyPssh,
             fairplayKey
@@ -95,6 +102,7 @@ export class StreamInfo {
         // afaik this ONLY has widevine
         return new StreamInfo(
             trackId,
+            m3u8Url,
             widevinePssh,
             undefined,
             undefined
@@ -120,7 +128,6 @@ function getDrmInfos(m3u8Data: M3u8): DrmInfos {
 
     throw "m3u8 missing audio session key info!";
 }
-
 
 type AssetInfos = { [key: string]: { "AUDIO-SESSION-KEY-IDS": string[]; }; }
 function getAssetInfos(m3u8Data: M3u8): AssetInfos {
@@ -176,7 +183,9 @@ const getPlayreadyPssh = (drmInfos: DrmInfos, drmIds: string[]): string | undefi
 const getFairplayKey = (drmInfos: DrmInfos, drmIds: string[]): string | undefined => getDrmData(drmInfos, drmIds, fairplay);
 
 // TODO: remove later, this is just for testing
-const streamInfo1 = await StreamInfo.fromWebplayback(await appleMusicApi.getWebplayback("1615276490"), "32:ctrp64");
-const streamInfo2 = await StreamInfo.fromTrackMetadata((await appleMusicApi.getSong("1615276490")).data[0].attributes);
-if (streamInfo1.widevinePssh !== undefined) { log.debug(await getWidevineDecryptionKey(streamInfo1.widevinePssh, streamInfo1.trackId)); }
-if (streamInfo2.widevinePssh !== undefined) { log.debug(await getWidevineDecryptionKey(streamInfo2.widevinePssh, streamInfo2.trackId)); }
+const streamInfo1 = await StreamInfo.fromWebplayback(await appleMusicApi.getWebplayback("1744965708"), "32:ctrp64");
+// const streamInfo2 = await StreamInfo.fromTrackMetadata((await appleMusicApi.getSong("1615276490")).data[0].attributes);
+// if (streamInfo1.widevinePssh !== undefined) { log.debug(await getWidevineDecryptionKey(streamInfo1.widevinePssh, streamInfo1.trackId)); }
+// if (streamInfo2.widevinePssh !== undefined) { log.debug(await getWidevineDecryptionKey(streamInfo2.widevinePssh, streamInfo2.trackId)); }
+
+if (streamInfo1.widevinePssh !== undefined) { await downloadSong(streamInfo1.streamUrl, await getWidevineDecryptionKey(streamInfo1.widevinePssh, streamInfo1.trackId)); }

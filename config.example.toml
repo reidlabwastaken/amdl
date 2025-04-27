@@ -4,6 +4,12 @@
 port = 2000
 
 [downloader]
+# path to the ffmpeg binary
+# will get from PATH if simply "ffmpeg"
+ffmpeg_path = "ffmpeg"
+# path to the yt-dlp binary
+# will get from PATH if simply "yt-dlp"
+ytdlp_path = "yt-dlp"
 
 [downloader.cache]
 # where to store downloaded files (music, lyrics, etc.)
@@ -13,5 +19,6 @@ directory = "cache"
 ttl = 3600 # (1 hour)
 
 [downloader.api]
-# two letter language code (ISO 639-1) and two letter country code (ISO 3166-1 alpha-2)
+# two letter language code (ISO 639-1), followed by a dash (-) and a two letter country code (ISO 3166-1 alpha-2)
+# recommended to use something similar to your `ITUA` env variable
 language = "en-US"

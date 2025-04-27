@@ -12,6 +12,8 @@ const configSchema = z.object({
         port: z.number().int().min(0).max(65535).or(z.string())
     }),
     downloader: z.object({
+        ffmpeg_path: z.string(),
+        ytdlp_path: z.string(),
         cache: z.object({
             directory: z.string(),
             ttl: z.number().int().min(0)

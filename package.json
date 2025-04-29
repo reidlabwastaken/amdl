@@ -4,15 +4,14 @@
     "description": "amdl",
     "type": "module",
     "scripts": {
-        "dev": "tsc && node dist/index.js",
-        "build": "tsc",
+        "dev": "concurrently 'node --watch dist/index.js' 'tsc --watch'",
+        "build": "npm run lint && tsc",
         "lint": "eslint .",
         "lint:fix": "eslint . --fix"
     },
     "author": "reidlab",
     "license": "MIT",
     "dependencies": {
-        "@inquirer/prompts": "^7.4.1",
         "axios": "^1.7.9",
         "callsites": "^4.2.0",
         "chalk": "^5.4.1",
@@ -32,6 +31,7 @@
         "@types/express": "^5.0.0",
         "@types/source-map-support": "^0.5.10",
         "@typescript-eslint/parser": "^7.12.0",
+        "concurrently": "^9.1.2",
         "eslint": "^8.57.0",
         "typescript": "^5.4.5",
         "typescript-eslint": "^7.13.0"

@@ -4,7 +4,7 @@ import process from "node:process";
 import * as log from "./log.js";
 import { appleMusicApi } from "./api/index.js";
 
-class HttpException extends Error {
+export class HttpException extends Error {
     public readonly status?: number;
 
     constructor(status: number, message: string) {
@@ -15,6 +15,14 @@ class HttpException extends Error {
 }
 
 const app = express();
+
+app.disable("x-powered-by");
+
+app.set("trust proxy", ["loopback", "uniquelocal"]);
+
+app.use("/", express.static("public"));
+
+app.use("/data", express.static(config.downloader.cache.directory, { extensions: ["mp4"] }));
 
 app.use((req, _res, next) => {
     next(new HttpException(404, `${req.path} not found`));
@@ -31,15 +39,13 @@ app.use((err: HttpException, _req: Request, res: Response, _next: NextFunction) 
     res.status(status).send(message);
 });
 
-// TODO: reorganize this
-// a bit gugly..
-
 await appleMusicApi.login().catch((err) => {
     log.error("failed to login to apple music api");
     log.error(err);
     process.exit(1);
+}).finally(() => {
+    log.info("logged in to apple music api");
 });
-log.debug("logged in to apple music api");
 
 try {
     const listener = app.listen(config.server.port, () => {

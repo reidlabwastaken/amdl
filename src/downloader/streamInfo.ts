@@ -5,12 +5,11 @@ import hls, { Item } from "parse-hls";
 import axios from "axios";
 import { getWidevineDecryptionKey } from "./keygen.js";
 import { widevine, playready, fairplay } from "../constants/keyFormats.js";
-import { select } from "@inquirer/prompts";
+import { songCodecRegex } from "../constants/codecs.js";
 import type { WebplaybackResponse } from "api/appleMusicApi.js";
-import { downloadSong } from "./index.js";
+import { downloadSong, RegularCodec, WebplaybackCodec } from "./index.js";
 
-// ugliest type ever
-// this library is so bad
+// why is this private
 // i wish pain on the person who wrote this /j :smile:
 type M3u8 = ReturnType<typeof hls.default.parse>;
 
@@ -51,7 +50,7 @@ export default class StreamInfo {
 
     // TODO: why can't we decrypt widevine ones with this?
     // we get a valid key.. but it doesn't work :-(
-    public static async fromTrackMetadata(trackMetadata: SongAttributes<["extendedAssetUrls"]>): Promise<StreamInfo> {
+    public static async fromTrackMetadata(trackMetadata: SongAttributes<["extendedAssetUrls"]>, codec: RegularCodec): Promise<StreamInfo> {
         log.warn("the track metadata method is experimental, and may not work or give correct values!");
         log.warn("if there is a failure--use a codec that uses the webplayback method");
 
@@ -61,7 +60,7 @@ export default class StreamInfo {
 
         const drmInfos = getDrmInfos(m3u8Parsed);
         const assetInfos = getAssetInfos(m3u8Parsed);
-        const playlist = await getPlaylist(m3u8Parsed);
+        const playlist = await getPlaylist(m3u8Parsed, codec);
         const variantId = playlist.properties[0].attributes.stableVariantId;
         if (variantId === undefined) { throw "variant id does not exist!"; }
         if (typeof variantId !== "string") { throw "variant id is not a string!"; }
@@ -85,10 +84,16 @@ export default class StreamInfo {
 
     // webplayback is the more "legacy" way
     // only supports widevine, from what i can tell
-    public static async fromWebplayback(webplayback: WebplaybackResponse, flavor: string): Promise<StreamInfo> {
+    public static async fromWebplayback(webplayback: WebplaybackResponse, codec: WebplaybackCodec): Promise<StreamInfo> {
         const song = webplayback.songList[0];
+
+        let flavor: string;
+        if (codec === WebplaybackCodec.AacHeLegacy) { flavor = "32:ctrp64"; }
+        else if (codec === WebplaybackCodec.AacLegacy) { flavor = "28:ctrp256"; }
+
         const asset = song.assets.find((asset) => { return asset.flavor === flavor; });
         if (asset === undefined) { throw "webplayback info for requested flavor doesn't exist!"; }
+
         const trackId = song.songId;
 
         const m3u8Url = asset.URL;
@@ -153,15 +158,17 @@ function getAssetInfos(m3u8Data: M3u8): AssetInfos {
 // SUPER TODO: remove inquery for the codec, including its library, this is for testing
 // add a config option for preferred codec ?
 // or maybe in the streaminfo function
-async function getPlaylist(m3u8Data: M3u8): Promise<Item> {
+async function getPlaylist(m3u8Data: M3u8, codec: RegularCodec): Promise<Item> {
     const masterPlaylists = m3u8Data.streamRenditions;
-    const masterPlaylist = await select({
-        message: "codec ?",
-        choices: masterPlaylists.map((playlist) => ({
-            name: playlist.properties[0].attributes.audio as string,
-            value: playlist
-        }))
+    const masterPlaylist = masterPlaylists.find((playlist) => {
+        const line = playlist.properties[0].attributes?.audio;
+        if (line === undefined) { return false; }
+        if (typeof line !== "string") { return false; }
+        const match = line.match(songCodecRegex[codec]);
+        return match !== null;
     });
+
+    if (masterPlaylist === undefined) { throw "no master playlist for codec found!"; }
 
     return masterPlaylist;
 }
@@ -183,9 +190,29 @@ const getPlayreadyPssh = (drmInfos: DrmInfos, drmIds: string[]): string | undefi
 const getFairplayKey = (drmInfos: DrmInfos, drmIds: string[]): string | undefined => getDrmData(drmInfos, drmIds, fairplay);
 
 // TODO: remove later, this is just for testing
-const streamInfo1 = await StreamInfo.fromWebplayback(await appleMusicApi.getWebplayback("1744965708"), "32:ctrp64");
-// const streamInfo2 = await StreamInfo.fromTrackMetadata((await appleMusicApi.getSong("1615276490")).data[0].attributes);
-// if (streamInfo1.widevinePssh !== undefined) { log.debug(await getWidevineDecryptionKey(streamInfo1.widevinePssh, streamInfo1.trackId)); }
-// if (streamInfo2.widevinePssh !== undefined) { log.debug(await getWidevineDecryptionKey(streamInfo2.widevinePssh, streamInfo2.trackId)); }
+// const streamInfo2 = await StreamInfo.fromTrackMetadata((await appleMusicApi.getSong("1615276490")).data[0].attributes, RegularCodec.Aac);
 
-if (streamInfo1.widevinePssh !== undefined) { await downloadSong(streamInfo1.streamUrl, await getWidevineDecryptionKey(streamInfo1.widevinePssh, streamInfo1.trackId)); }
+const streamCodec1 = WebplaybackCodec.AacLegacy;
+const streamInfo1 = await StreamInfo.fromWebplayback(await appleMusicApi.getWebplayback("1705366148"), streamCodec1);
+if (streamInfo1.widevinePssh !== undefined) {
+    await downloadSong(
+        streamInfo1.streamUrl,
+        await getWidevineDecryptionKey(streamInfo1.widevinePssh, streamInfo1.trackId),
+        streamCodec1
+    );
+}
+
+// try {
+//     const streamCodec2 = RegularCodec.AacHe;
+//     const streamInfo2 = await StreamInfo.fromTrackMetadata((await appleMusicApi.getSong("1705366148")).data[0].attributes, streamCodec2);
+//     if (streamInfo2.widevinePssh !== undefined) {
+//         await downloadSong(
+//             streamInfo2.streamUrl,
+//             await getWidevineDecryptionKey(streamInfo2.widevinePssh, streamInfo2.trackId),
+//             streamCodec2
+//         );
+//     }
+// } catch (err) {
+//     log.error("failed to download song");
+//     log.error(err);
+// }

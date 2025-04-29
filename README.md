@@ -21,3 +21,8 @@ most of the config is talked on in [`config.example.toml`](./config.example.toml
 ## limitations / the formats
 
 currently you can only get basic widevine ones, everything related to playready and fairplay is not supported, sorry!! someday i will get this working, at least for playready. it's just that no one has written a library yet
+
+guaranteed formats to work include:
+
+- aac-legacy
+- aac-he-legacy

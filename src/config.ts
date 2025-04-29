@@ -70,6 +70,6 @@ function loadSchemaSomething<T extends ZodSchema>(schema: T, something: string |
 }
 
 export const config = loadSchemaSomething(configSchema, "config.toml");
-log.debug("config loaded");
+log.info("config loaded");
 export const env = loadSchemaSomething(envSchema, process.env);
-log.debug("env loaded");
+log.info("env loaded");

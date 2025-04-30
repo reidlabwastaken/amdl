@@ -1,43 +1,8 @@
 import { config } from "./config.js";
-import express, { type NextFunction, type Request, type Response } from "express";
 import process from "node:process";
 import * as log from "./log.js";
 import { appleMusicApi } from "./api/index.js";
-
-export class HttpException extends Error {
-    public readonly status?: number;
-
-    constructor(status: number, message: string) {
-        super(message);
-        this.status = status;
-        this.message = message;
-    }
-}
-
-const app = express();
-
-app.disable("x-powered-by");
-
-app.set("trust proxy", ["loopback", "uniquelocal"]);
-
-app.use("/", express.static("public"));
-
-app.use("/data", express.static(config.downloader.cache.directory, { extensions: ["mp4"] }));
-
-app.use((req, _res, next) => {
-    next(new HttpException(404, `${req.path} not found`));
-});
-
-app.use((err: HttpException, _req: Request, res: Response, _next: NextFunction) => {
-    if (!err.status || err.status % 500 < 100) {
-        log.error(err);
-    }
-
-    const status = err.status ?? 500;
-    const message = err.message;
-
-    res.status(status).send(message);
-});
+import { app } from "./web/index.js";
 
 await appleMusicApi.login().catch((err) => {
     log.error("failed to login to apple music api");

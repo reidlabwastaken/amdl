@@ -1,0 +1,116 @@
+:root {
+    font-family: system-ui;
+    font-size: 1em;
+    line-height: 1.25;
+
+    color: var(--foreground);
+    background-color: var(--background);
+
+    --foreground: #cdd6f4;
+    --foreground-muted: #a6adc8;
+    --background: #1e1e2e;
+    --background-surface: #313244;
+    --shadow: #11111b;
+}
+
+body {
+    display: grid;
+    grid-template-columns: auto;
+    grid-template-rows: min-content auto min-content;
+    grid-auto-flow: column;
+
+    width: 100%;
+    height: 100%;
+    min-width: 100vw;
+    min-height: 100vh;
+}
+
+main {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1em;
+    padding: 1em;
+    width: 100%;
+    height: 100%;
+}
+
+h1, h2, h3, h4, h5, h6, p {
+    margin-top: .8em;
+    margin-bottom: .8em;
+}
+
+/* this isn't great in terms of accessibility */
+/* makes sense for most the stuff we got tho */
+a {
+    color: var(--foreground);
+    text-decoration: none;
+}
+a:hover {
+    color: var(--foreground-muted);
+    text-decoration: underline;
+}
+
+.light {
+    color: var(--foreground-muted);
+}
+
+input::placeholder {
+    color: var(--foreground-muted);
+}
+
+input[type="search"] {
+    color: var(--foreground);
+    background-color: var(--background-surface);
+    border: 0;
+    border-radius: 0.5em;
+    padding: 0.5em 1em;
+    box-shadow: 0 0 2em var(--shadow);
+}
+
+header {
+    background-color: var(--background-surface);
+    padding-left: 1em;
+    padding-right: 1em;
+    box-shadow: 0 0 2em var(--shadow);
+}
+header h1 {
+    font-size: 1.2em;
+}
+
+footer {
+    background-color: var(--background-surface);
+    padding: 1em;
+    box-shadow: 0 0 2em var(--shadow);
+}
+
+.result {
+    display: flex;
+    flex-direction: column;
+    width: 60%;
+    gap: 1em;
+    padding: 1em;
+    background-color: var(--background-surface);
+    box-shadow: 0 0 2em var(--shadow);
+    border-radius: 0.5em;
+}
+.result-info {
+    display: flex;
+    flex-direction: row;
+    gap: 1em;
+}
+.result-info img {
+    width: 5.5em;
+    height: 5.5em;
+    border-radius: 0.5em;
+}
+.result-text {
+    display: flex;
+    flex-direction: column;
+}
+.result-text h2 {
+    font-size: 1em;
+    margin-top: 0;
+    margin-bottom: 0;
+}

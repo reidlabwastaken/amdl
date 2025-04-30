@@ -3,10 +3,9 @@ import { spawn } from "node:child_process";
 import path from "node:path";
 import { addToCache, isCached } from "../cache.js";
 
-// TODO: make this have a return type (file path)
 // TODO: refresh cache timer on download
 // TODO: remux to m4a?
-export async function downloadSong(streamUrl: string, decryptionKey: string, songCodec: RegularCodec | WebplaybackCodec): Promise<void> {
+export async function downloadSong(streamUrl: string, decryptionKey: string, songCodec: RegularCodec | WebplaybackCodec): Promise<string> {
     let baseOutputName = streamUrl.split("/").at(-1)?.split("?").at(0)?.split(".").splice(0, 1).join(".")?.trim();
     if (!baseOutputName) { throw "could not get base output name from stream url"; }
     baseOutputName += `_${songCodec}`;
@@ -18,7 +17,7 @@ export async function downloadSong(streamUrl: string, decryptionKey: string, son
     if ( // TODO: remove check for encrypted file/cache for encrypted?
         isCached(encryptedName) &&
         isCached(decryptedName)
-    ) { return; }
+    ) { return decryptedPath; }
 
     await new Promise<void>((res, rej) => {
         const child = spawn(config.downloader.ytdlp_path, [
@@ -50,6 +49,8 @@ export async function downloadSong(streamUrl: string, decryptionKey: string, son
 
     addToCache(encryptedName);
     addToCache(decryptedName);
+
+    return decryptedPath;
 }
 
 // TODO: find a better spot for this

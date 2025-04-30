@@ -1,0 +1,11 @@
+<div class="result">
+    <div class="result-info">
+        <img src="{{cover}}" loading="lazy" decoding="async"/>
+        <div class="result-text">
+            <h2>{{name}}</h2>
+            <span class="light">{{#each artists as |artist|}}
+                {{artist}}{{#unless @last}},{{/unless}}
+            {{/each}}</span>
+        </div>
+    </div>
+</div>

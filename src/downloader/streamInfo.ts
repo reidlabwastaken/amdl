@@ -1,13 +1,11 @@
-import { appleMusicApi } from "../api/index.js";
 import * as log from "../log.js";
 import type { SongAttributes } from "../api/types/appleMusic/attributes.js";
 import hls, { Item } from "parse-hls";
 import axios from "axios";
-import { getWidevineDecryptionKey } from "./keygen.js";
 import { widevine, playready, fairplay } from "../constants/keyFormats.js";
 import { songCodecRegex } from "../constants/codecs.js";
 import type { WebplaybackResponse } from "api/appleMusicApi.js";
-import { downloadSong, RegularCodec, WebplaybackCodec } from "./index.js";
+import { RegularCodec, WebplaybackCodec } from "./index.js";
 
 // why is this private
 // i wish pain on the person who wrote this /j :smile:
@@ -188,31 +186,3 @@ function getDrmData(drmInfos: DrmInfos, drmIds: string[], drmKey: string): strin
 const getWidevinePssh = (drmInfos: DrmInfos, drmIds: string[]): string | undefined => getDrmData(drmInfos, drmIds, widevine);
 const getPlayreadyPssh = (drmInfos: DrmInfos, drmIds: string[]): string | undefined => getDrmData(drmInfos, drmIds, playready);
 const getFairplayKey = (drmInfos: DrmInfos, drmIds: string[]): string | undefined => getDrmData(drmInfos, drmIds, fairplay);
-
-// TODO: remove later, this is just for testing
-// const streamInfo2 = await StreamInfo.fromTrackMetadata((await appleMusicApi.getSong("1615276490")).data[0].attributes, RegularCodec.Aac);
-
-const streamCodec1 = WebplaybackCodec.AacLegacy;
-const streamInfo1 = await StreamInfo.fromWebplayback(await appleMusicApi.getWebplayback("1705366148"), streamCodec1);
-if (streamInfo1.widevinePssh !== undefined) {
-    await downloadSong(
-        streamInfo1.streamUrl,
-        await getWidevineDecryptionKey(streamInfo1.widevinePssh, streamInfo1.trackId),
-        streamCodec1
-    );
-}
-
-// try {
-//     const streamCodec2 = RegularCodec.AacHe;
-//     const streamInfo2 = await StreamInfo.fromTrackMetadata((await appleMusicApi.getSong("1705366148")).data[0].attributes, streamCodec2);
-//     if (streamInfo2.widevinePssh !== undefined) {
-//         await downloadSong(
-//             streamInfo2.streamUrl,
-//             await getWidevineDecryptionKey(streamInfo2.widevinePssh, streamInfo2.trackId),
-//             streamCodec2
-//         );
-//     }
-// } catch (err) {
-//     log.error("failed to download song");
-//     log.error(err);
-// }

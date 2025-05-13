@@ -20,6 +20,7 @@ export default [
             // not very typescript-coded (typescript shouldnt require runtime debugging, thats the point of it)
 
             // TODO: find a rule to make seperators on interfaces consistent
+            // it... let's just say... it pmo
 
             "@typescript-eslint/explicit-function-return-type": "error",
             "@typescript-eslint/no-unused-vars": [

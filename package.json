@@ -19,6 +19,7 @@
         "dotenv": "^16.4.7",
         "express": "^4.21.2",
         "express-handlebars": "^8.0.1",
+        "format-duration": "^3.0.2",
         "git-rev-sync": "^3.0.2",
         "node-widevine": "https://github.com/wangziyingwen/node-widevine",
         "parse-hls": "^1.0.7",

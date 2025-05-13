@@ -3,7 +3,7 @@ import * as log from "../log.js";
 // basically, i don't want to pay 100 dollars for a dev token to the official API
 // here's the kicker--this token is more "privileged"
 // thanks to this guy complaining to apple for telling us this! https://developer.apple.com/forums/thread/702228
-// apple says "any other method may be blocked at any time" (posted in mar 2022, not happening)
+// apple says "any other method may be blocked at any time" (posted in mar 2022, most likely not happening)
 export async function getToken(baseUrl: string): Promise<string> {
     const indexResponse = await fetch(baseUrl);
     const indexBody = await indexResponse.text();
@@ -12,7 +12,7 @@ export async function getToken(baseUrl: string): Promise<string> {
     const jsPath = indexBody.match(jsRegex)?.[0];
 
     if (!jsPath) {
-        throw new Error("could not match for the index javascript file");
+        throw new Error("could not match for the index javascript file!");
     }
 
     const jsResponse = await fetch(baseUrl + jsPath);

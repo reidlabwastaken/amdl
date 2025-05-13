@@ -11,16 +11,15 @@ const schema = z.object({
     })
 });
 
-// this endpoint isn't actually used for anything by us
-// it's for people who want to implement apple music downloading into their own apps (ex. discord music bot)
-// it makes it a bit easier to get the metadata for a track knowing the trackId
-router.get("/getTrackMetadata", async (req, res, next) => {
+// see comments in `getTrackMetadata.ts`
+// awawawawawa
+router.get("/getAlbumMetadata", async (req, res, next) => {
     try {
         const { id } = (await validate(req, schema)).query;
 
-        const trackMetadata = await appleMusicApi.getSong(id);
+        const albumMetadata = await appleMusicApi.getAlbum(id);
 
-        res.json(trackMetadata);
+        res.json(albumMetadata);
     } catch (err) {
         next(err);
     }

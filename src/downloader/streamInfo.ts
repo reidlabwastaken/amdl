@@ -1,29 +1,15 @@
 import * as log from "../log.js";
-import type { SongAttributes } from "../api/types/appleMusic/attributes.js";
+import type { SongAttributes } from "../appleMusicApi/types/attributes.js";
 import hls, { Item } from "parse-hls";
 import axios from "axios";
 import { widevine, playready, fairplay } from "../constants/keyFormats.js";
 import { songCodecRegex } from "../constants/codecs.js";
-import type { WebplaybackResponse } from "api/appleMusicApi.js";
+import type { WebplaybackResponse } from "appleMusicApi/index.js";
 import { RegularCodec, WebplaybackCodec } from "./index.js";
 
 // why is this private
 // i wish pain on the person who wrote this /j :smile:
 type M3u8 = ReturnType<typeof hls.default.parse>;
-
-// TODO: whole big thing, and a somewhat big issue
-// some files can just Not be downloaded
-// this is because only the fairplay (com.apple.streamingkeydelivery) key is present
-// and no other drm schemes exist..
-// however... there is still widevine ones ???? just tucked away... REALLY WELL
-// https://github.com/glomatico/gamdl/blob/main/gamdl/downloader_song_legacy.py#L27
-// bullshit, i tell you.
-// havent had this issue with the small pool i tested before late 2024. what ????
-// i don't get it.
-// i just tried another thing from 2022 ro 2023 and it worked fine
-// SOLVED. widevine keys are not always present in the m3u8 manifest that is default (you can see that in link above, thats why it exists)
-// OH. it doesn't seem to give the keys you want anyway LOLLLLLLL????
-// i'm sure its used for *SOMETHING* so i'll keep it
 
 export default class StreamInfo {
     public readonly trackId: string;
@@ -60,20 +46,22 @@ export default class StreamInfo {
         const assetInfos = getAssetInfos(m3u8Parsed);
         const playlist = await getPlaylist(m3u8Parsed, codec);
         const variantId = playlist.properties[0].attributes.stableVariantId;
-        if (variantId === undefined) { throw "variant id does not exist!"; }
-        if (typeof variantId !== "string") { throw "variant id is not a string!"; }
+        if (variantId === undefined) { throw new Error("variant id does not exist!"); }
+        if (typeof variantId !== "string") { throw new Error("variant id is not a string!"); }
         const drmIds = assetInfos[variantId]["AUDIO-SESSION-KEY-IDS"];
+
+        const correctM3u8Url = m3u8Url.substring(0, m3u8Url.lastIndexOf("/")) + "/" + playlist.uri;
 
         const widevinePssh = getWidevinePssh(drmInfos, drmIds);
         const playreadyPssh = getPlayreadyPssh(drmInfos, drmIds);
         const fairplayKey = getFairplayKey(drmInfos, drmIds);
 
         const trackId = trackMetadata.playParams?.id;
-        if (trackId === undefined) { throw "track id is missing, this may indicate your song isn't accessable w/ your subscription!"; }
+        if (trackId === undefined) { throw new Error("track id gone, this may indicate your song isn't accessable w/ your subscription!"); }
 
         return new StreamInfo(
             trackId,
-            m3u8Url, // TODO: make this keep in mind the CODEC, yt-dlp will shit itself if not supplied i think
+            correctM3u8Url,
             widevinePssh,
             playreadyPssh,
             fairplayKey
@@ -90,7 +78,7 @@ export default class StreamInfo {
         else if (codec === WebplaybackCodec.AacLegacy) { flavor = "28:ctrp256"; }
 
         const asset = song.assets.find((asset) => { return asset.flavor === flavor; });
-        if (asset === undefined) { throw "webplayback info for requested flavor doesn't exist!"; }
+        if (asset === undefined) { throw new Error("webplayback info for requested flavor doesn't exist!"); }
 
         const trackId = song.songId;
 
@@ -99,8 +87,8 @@ export default class StreamInfo {
         const m3u8Parsed = hls.default.parse(m3u8.data);
 
         const widevinePssh =  m3u8Parsed.lines.find((line) => { return line.name === "key"; })?.attributes?.uri;
-        if (widevinePssh === undefined) { throw "widevine uri is missing!"; }
-        if (typeof widevinePssh !== "string") { throw "widevine uri is not a string!"; }
+        if (widevinePssh === undefined) { throw new Error("widevine uri is missing!"); }
+        if (typeof widevinePssh !== "string") { throw new Error("widevine uri is not a string!"); }
 
         // afaik this ONLY has widevine
         return new StreamInfo(
@@ -122,14 +110,14 @@ function getDrmInfos(m3u8Data: M3u8): DrmInfos {
             line.content.includes("com.apple.hls.AudioSessionKeyInfo")
         ) {
             const value = line.content.match(/VALUE="([^"]+)"/);
-            if (!value) { throw "could not match for drm key value!"; }
-            if (!value[1]) { throw "drm key value is empty!"; }
+            if (!value) { throw new Error("could not match for drm key value!"); }
+            if (!value[1]) { throw new Error("drm key value is empty!"); }
 
             return JSON.parse(Buffer.from(value[1], "base64").toString("utf-8"));
         }
     }
 
-    throw "m3u8 missing audio session key info!";
+    throw new Error("m3u8 missing audio session key info!");
 }
 
 type AssetInfos = { [key: string]: { "AUDIO-SESSION-KEY-IDS": string[]; }; }
@@ -143,19 +131,16 @@ function getAssetInfos(m3u8Data: M3u8): AssetInfos {
             line.content.includes("com.apple.hls.audioAssetMetadata")
         ) {
             const value = line.content.match(/VALUE="([^"]+)"/);
-            if (!value) { throw "could not match for value!"; }
-            if (!value[1]) { throw "value is empty!"; }
+            if (!value) { throw new Error("could not match for value!"); }
+            if (!value[1]) { throw new Error("value is empty!"); }
 
             return JSON.parse(Buffer.from(value[1], "base64").toString("utf-8"));
         }
     }
 
-    throw "m3u8 missing audio asset metadata!";
+    throw new Error("m3u8 missing audio asset metadata!");
 }
 
-// SUPER TODO: remove inquery for the codec, including its library, this is for testing
-// add a config option for preferred codec ?
-// or maybe in the streaminfo function
 async function getPlaylist(m3u8Data: M3u8, codec: RegularCodec): Promise<Item> {
     const masterPlaylists = m3u8Data.streamRenditions;
     const masterPlaylist = masterPlaylists.find((playlist) => {
@@ -166,7 +151,7 @@ async function getPlaylist(m3u8Data: M3u8, codec: RegularCodec): Promise<Item> {
         return match !== null;
     });
 
-    if (masterPlaylist === undefined) { throw "no master playlist for codec found!"; }
+    if (masterPlaylist === undefined) { throw new Error("no master playlist for codec found!"); }
 
     return masterPlaylist;
 }

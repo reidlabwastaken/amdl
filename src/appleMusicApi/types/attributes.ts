@@ -1,10 +1,34 @@
-import type { SongAttributesExtensionMap, SongAttributesExtensionTypes } from "./extensions.js";
 import type { Artwork, EditorialNotes, PlayParameters, Preview } from "./extras.js";
-// import type { SongAttributesRelationshipMap, SongAttributesRelationshipTypes } from "./relationships.js";
+import type {
+    AlbumAttributesExtensionMap, AlbumAttributesExtensionTypes,
+    SongAttributesExtensionMap, SongAttributesExtensionTypes
+} from "./extensions.js";
+
+export type AlbumAttributes<
+    T extends AlbumAttributesExtensionTypes,
+> = {
+    artistName: string
+    artwork: Artwork
+    contentRating?: string
+    copyright?: string
+    editorialNotes?: EditorialNotes
+    genreNames: string[]
+    isCompilation: boolean
+    isComplete: boolean
+    isMasteredForItunes: boolean
+    isSingle: boolean
+    name: string
+    playParams?: PlayParameters
+    recordLabel?: string
+    releaseDate?: string
+    trackCount: number
+    upc?: string
+    url: string
+}
+    & Pick<AlbumAttributesExtensionMap, T[number]>
 
 export type SongAttributes<
     T extends SongAttributesExtensionTypes,
-    // U extends SongAttributesRelationshipTypes
 > = {
     albumName: string
     artistName: string
@@ -31,4 +55,3 @@ export type SongAttributes<
     workName?: string
 }
     & Pick<SongAttributesExtensionMap, T[number]>
-    // & Pick<SongAttributesRelationshipMap, U[number]>

@@ -10,6 +10,7 @@
     --foreground-muted: #a6adc8;
     --background: #1e1e2e;
     --background-surface: #313244;
+    --background-surface-muted: #45475a;
     --shadow: #11111b;
 }
 
@@ -30,9 +31,11 @@ main {
     flex-direction: column;
     align-items: center;
     justify-content: center;
+    margin-left: auto;
+    margin-right: auto;
     gap: 1em;
     padding: 1em;
-    width: 100%;
+    width: 60%;
     height: 100%;
 }
 
@@ -41,39 +44,49 @@ h1, h2, h3, h4, h5, h6, p {
     margin-bottom: .8em;
 }
 
-/* this isn't great in terms of accessibility */
-/* makes sense for most the stuff we got tho */
+p {
+    text-align: center;
+}
+
 a {
     color: var(--foreground);
-    text-decoration: none;
+    text-decoration: underline dotted;
 }
 a:hover {
     color: var(--foreground-muted);
     text-decoration: underline;
 }
 
-.light {
-    color: var(--foreground-muted);
+hr {
+    width: 100%;
+    height: 1px;
+    background-color: var(--background-surface-muted);
+    border: none;
+    margin: 0.25em 0;
 }
 
 input::placeholder {
     color: var(--foreground-muted);
 }
 
-input[type="search"] {
+input[type="search"], input[type="submit"], select {
     color: var(--foreground);
     background-color: var(--background-surface);
     border: 0;
     border-radius: 0.5em;
     padding: 0.5em 1em;
-    box-shadow: 0 0 2em var(--shadow);
+    box-shadow: 0 0 1em var(--shadow);
+}
+
+input[type="submit"] {
+    cursor: pointer;
 }
 
 header {
     background-color: var(--background-surface);
     padding-left: 1em;
     padding-right: 1em;
-    box-shadow: 0 0 2em var(--shadow);
+    box-shadow: 0 0 1em var(--shadow);
 }
 header h1 {
     font-size: 1.2em;
@@ -82,35 +95,125 @@ header h1 {
 footer {
     background-color: var(--background-surface);
     padding: 1em;
-    box-shadow: 0 0 2em var(--shadow);
+    box-shadow: 0 0 1em var(--shadow);
+}
+
+.light {
+    color: var(--foreground-muted);
+}
+
+.results {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0;
+    gap: 1em;
+    width: 100%;
 }
 
 .result {
     display: flex;
     flex-direction: column;
-    width: 60%;
     gap: 1em;
     padding: 1em;
     background-color: var(--background-surface);
-    box-shadow: 0 0 2em var(--shadow);
+    box-shadow: 0 0 1em var(--shadow);
     border-radius: 0.5em;
+    width: 100%;
 }
 .result-info {
     display: flex;
     flex-direction: row;
+    align-items: center;
     gap: 1em;
 }
 .result-info img {
-    width: 5.5em;
-    height: 5.5em;
-    border-radius: 0.5em;
+    width: 4em;
+    height: 4em;
+    box-shadow: 0 0 1em var(--shadow);
+    transition: transform 0.2s ease-in-out;
 }
-.result-text {
+.result-info img:hover {
+    transform: scale(2);
+}
+.result-info-text {
     display: flex;
     flex-direction: column;
 }
-.result-text h2 {
+.result-info-text h2 {
     font-size: 1em;
     margin-top: 0;
     margin-bottom: 0;
+}
+.result-tracklist {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+}
+
+.track:nth-child(odd) { background-color: var(--background-surface-muted); }
+.track:nth-child(even) { background-color: var(--background-surface); }
+.track {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 0.5em;
+    padding: 0.5em;
+    padding-right: 1em;
+}
+.track-number {
+    font-size: 0.8em;
+    text-align: center;
+    width: 2em;
+}
+.track-info h3 {
+    font-size: 1em;
+    margin-top: 0;
+    margin-bottom: 0;
+}
+.track-right {
+    display: flex;
+    flex-direction: row;
+    align-items: baseline; /* only thing that looks correct */
+    margin-left: auto;
+    gap: 0.5em;
+}
+.track-time {
+    font-size: 0.8em;
+}
+
+.paginator {
+    font-size: 1.2em;
+}
+
+.download-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1em;
+    padding: 1em;
+}
+
+.error {
+    font-size: min(15em, 30vw);
+    font-weight: bold;
+    color: transparent;
+    --gradient: repeating-linear-gradient(45deg, var(--foreground), var(--foreground) 10px, var(--foreground-muted) 10px, var(--foreground-muted) 20px);
+    background: var(--gradient);
+    background-clip: text;
+    margin-top: 4rem;
+    margin-bottom: 1rem;
+}
+
+.wrap {
+    word-wrap: anywhere;
+}
+
+/* mobile */
+@media screen and (max-width: 600px) {
+    main {
+        width: 100%;
+    }
 }

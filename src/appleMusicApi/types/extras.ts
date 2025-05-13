@@ -1,8 +1,3 @@
-// TODO: i can't cba to make views (what r these??) / relationships 100% type safe
-// it's difficult because they seem to trickle down extensions, too
-// oh wait--the relationships are not always present (not applicable) so thats even better !!
-// so i would have to make a type for each relationship hahahahahahaha
-
 // https://developer.apple.com/documentation/applemusicapi/artwork
 export interface Artwork {
     bgColor?: string

@@ -1,11 +1,15 @@
-<div class="result">
+<li class="result">
     <div class="result-info">
-        <img src="{{cover}}" loading="lazy" decoding="async"/>
-        <div class="result-text">
+        <img width="256" height="256" src="{{cover}}" loading="lazy" decoding="async"/>
+        <div class="result-info-text">
             <h2>{{name}}</h2>
-            <span class="light">{{#each artists as |artist|}}
-                {{artist}}{{#unless @last}},{{/unless}}
-            {{/each}}</span>
+            <span class="light">{{arrayJoin artists ", "}}</span>
         </div>
     </div>
-</div>
+    <hr>
+    <ol class="result-tracklist">
+        {{#each tracks as |track|}}
+            {{> track num=(add @index 1)}}
+        {{/each}}
+    </ol>
+</li>

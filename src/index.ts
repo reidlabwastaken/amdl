@@ -1,7 +1,7 @@
 import { config } from "./config.js";
 import process from "node:process";
 import * as log from "./log.js";
-import { appleMusicApi } from "./api/index.js";
+import { appleMusicApi } from "./appleMusicApi/index.js";
 import { app } from "./web/index.js";
 
 await appleMusicApi.login().catch((err) => {
@@ -39,8 +39,3 @@ process.on("unhandledRejection", (err) => {
     log.error(err);
     process.exit(1);
 });
-
-// TODO: remove later
-// this is for testing purposes
-await import("./downloader/streamInfo.js");
-await import("./cache.js");

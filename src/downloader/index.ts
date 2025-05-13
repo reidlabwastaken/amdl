@@ -3,11 +3,9 @@ import { spawn } from "node:child_process";
 import path from "node:path";
 import { addToCache, isCached } from "../cache.js";
 
-// TODO: refresh cache timer on download
-// TODO: remux to m4a?
 export async function downloadSong(streamUrl: string, decryptionKey: string, songCodec: RegularCodec | WebplaybackCodec): Promise<string> {
-    let baseOutputName = streamUrl.split("/").at(-1)?.split("?").at(0)?.split(".").splice(0, 1).join(".")?.trim();
-    if (!baseOutputName) { throw "could not get base output name from stream url"; }
+    let baseOutputName = streamUrl.match(/(?:.*\/)\s*(\S*?)[.?]/)?.[1];
+    if (!baseOutputName) { throw new Error("could not get base output name from stream url!"); }
     baseOutputName += `_${songCodec}`;
     const encryptedName = baseOutputName + "_enc.mp4";
     const encryptedPath = path.join(config.downloader.cache.directory, encryptedName);
@@ -28,10 +26,13 @@ export async function downloadSong(streamUrl: string, decryptionKey: string, son
             "--paths", config.downloader.cache.directory,
             "--output", encryptedName,
             streamUrl
-        ]).on("error", (err) => { rej(err); });
-        child.stderr.on("data", (chunk) => { rej(chunk); });
+        ]);
+        child.on("error", (err) => { rej(err); });
+        child.stderr.on("data", (data) => { rej(new Error(data.toString().trim())); });
         child.on("exit", () => { res(); });
     });
+
+    addToCache(encryptedName);
 
     await new Promise<void>((res, rej) => {
         const child = spawn(config.downloader.ffmpeg_path, [
@@ -42,12 +43,12 @@ export async function downloadSong(streamUrl: string, decryptionKey: string, son
             "-c", "copy",
             "-movflags", "+faststart",
             decryptedPath
-        ]).on("error", (err) => { rej(err); });
-        child.stderr.on("data", (chunk) => { rej(chunk); });
+        ]);
+        child.on("error", (err) => { rej(err); });
+        child.stderr.on("data", (data) => { rej(new Error(data.toString().trim())); });
         child.on("exit", () => { res(); } );
     });
 
-    addToCache(encryptedName);
     addToCache(decryptedName);
 
     return decryptedPath;

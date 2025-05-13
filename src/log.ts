@@ -6,11 +6,10 @@ import callsites from "callsites";
 import sourceMapSupport from "source-map-support";
 import { fileURLToPath } from "node:url";
 
-// https://en.wikipedia.org/wiki/Trollface#/media/File:Trollface.png
-// TODO: register this the first thing in the app?
 sourceMapSupport.install();
 
 enum Level {
+    Http,
     Debug,
     Info,
     Warn,
@@ -18,12 +17,14 @@ enum Level {
 }
 
 const levelColors = {
+    [Level.Http]: chalk.gray,
     [Level.Debug]: chalk.blue,
     [Level.Info]: chalk.green,
     [Level.Warn]: chalk.yellow,
     [Level.Error]: chalk.red
 };
 const levelNames = {
+    [Level.Http]: "HTTP",
     [Level.Debug]: "DEBUG",
     [Level.Info]: "INFO",
     [Level.Warn]: "WARN",
@@ -78,6 +79,7 @@ function log(level: Level, ...message: unknown[]): void {
     process.stdout.write(`${prefix} ${formatted.split("\n").join("\n" + prefix)}\n`);
 }
 
+export function http(...message: unknown[]): void { log(Level.Http, ...message); }
 export function debug(...message: unknown[]): void { log(Level.Debug, ...message); }
 export function info(...message: unknown[]): void { log(Level.Info, ...message); }
 export function warn(...message: unknown[]): void { log(Level.Warn, ...message); }

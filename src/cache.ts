@@ -11,6 +11,7 @@ import * as log from "./log.js";
 // TODO: swap to sqlite
 // TODO: make async fs calls
 // TODO: rework EVERYTHING
+// TODO: refresh cache timer on download
 
 interface CacheEntry {
     fileName: string;
@@ -93,6 +94,3 @@ export function addToCache(fileName: string): void {
     });
     rewriteCache();
 }
-
-// setTimeout(() => addToCache("jorry.tx"), 1000);
-

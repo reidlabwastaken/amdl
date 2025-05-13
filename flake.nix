@@ -22,8 +22,8 @@
 
             # uncomment this and let the build fail, then get the current hash
             # very scuffed but endorsed!
-            #npmDepsHash = "sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=";
-            npmDepsHash = "sha256-XCGUKgLZxW7MonHswkp7mbvgeUlRCgBE3WnRjElf44Q=";
+            # npmDepsHash = "sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=";
+            npmDepsHash = "sha256-f+RacjhkJP3RlK+yKJ8Xm0Rar4NyIxJjNQYDrpqhnD4=";
 
             installPhase = ''
               mkdir -p $out

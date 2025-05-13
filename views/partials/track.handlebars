@@ -1,0 +1,13 @@
+<li class="track">
+    <code class="track-number">
+        <span class="light">{{mapNumberToLetter discNumber}}{{trackNumber}}</span>
+    </code>
+    <div class="track-info">
+        <h3>{{name}}</h3>
+        <span class="light">{{arrayJoin artists ", "}}</span>
+    </div>
+    <div class="track-right">
+        <code class="track-time"><span class="light">{{formatDuration duration}}</span></code>
+        {{> download}}
+    </div>
+</li>

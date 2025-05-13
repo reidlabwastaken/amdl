@@ -1,0 +1,13 @@
+<div class="paginator">
+    {{#if (greaterThan page 1)}}
+        <a href="{{back}}">&laquo;</a>
+    {{else}}
+        <span class="light">&laquo;</span>
+    {{/if}}
+    <span>{{page}}</span>
+    {{#if next}}
+        <a href="{{next}}">&raquo;</a>
+    {{else}}
+        <span class="light">&raquo;</span>
+    {{/if}}
+</div>

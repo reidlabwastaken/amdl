@@ -1,4 +1,15 @@
-{{> search query=query}}
-{{#each results as |result|}}
-    {{> result name=result.name}}
-{{/each}}
+<form action="/" method="get">
+    <input type="search" name="q" placeholder="search for something" value="{{query}}">
+</form>
+{{#if query}}
+    {{#if results.length}}
+        <ul class="results">
+            {{#each results as |result|}}
+                {{> result}}
+            {{/each}}
+        </ul>
+    {{else}}
+        <p>no results found for <samp class="wrap">{{query}}</samp></p>
+    {{/if}}
+    {{> paginator}}
+{{/if}}

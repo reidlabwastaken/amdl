@@ -9,7 +9,11 @@ dotenv.config();
 
 const configSchema = z.object({
     server: z.object({
-        port: z.number().int().min(0).max(65535).or(z.string())
+        port: z.number().int().min(0).max(65535).or(z.string()),
+        frontend: z.object({
+            search_count: z.number().int().min(5).max(25),
+            displayed_codecs: z.array(z.string())
+        })
     }),
     downloader: z.object({
         ffmpeg_path: z.string(),

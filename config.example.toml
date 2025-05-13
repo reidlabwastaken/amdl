@@ -3,6 +3,14 @@
 # or a unix socket path (e.g. /tmp/sock)
 port = 2000
 
+[server.frontend]
+# the amount of search results to show
+# max 25, min 5
+search_count = 5
+# displayed codecs, recommended to use default
+# see src/downloader/index.ts for a list of codecs
+displayed_codecs = ["aac_legacy", "aac_he_legacy"]
+
 [downloader]
 # path to the ffmpeg binary
 # will get from PATH if simply "ffmpeg"

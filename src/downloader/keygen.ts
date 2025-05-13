@@ -1,4 +1,4 @@
-import { LicenseType, Session } from "node-widevine";
+import { Session } from "node-widevine";
 import { env } from "../config.js";
 import { appleMusicApi } from "../appleMusicApi/index.js";
 import { dataUriToBuffer } from "data-uri-to-buffer";
@@ -14,7 +14,7 @@ export async function getWidevineDecryptionKey(psshDataUri: string, trackId: str
 
     let challenge: Buffer;
     try {
-        challenge = session.createLicenseRequest(LicenseType.STREAMING);
+        challenge = session.createLicenseRequest();
     } catch (err) {
         // for some reason, if gotten from a webplayback manifest, the pssh is in a completely different format
         // well, somewhat. it's just the raw data, we have to rebuild the pssh
@@ -29,7 +29,7 @@ export async function getWidevineDecryptionKey(psshDataUri: string, trackId: str
 
         pssh = Buffer.from(rebuiltPssh, "base64");
         session = new Session({ privateKey, identifierBlob }, pssh);
-        challenge = session.createLicenseRequest(LicenseType.STREAMING);
+        challenge = session.createLicenseRequest();
     }
 
     const response = await appleMusicApi.getWidevineLicense(

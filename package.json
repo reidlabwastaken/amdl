@@ -21,7 +21,7 @@
         "express-handlebars": "^8.0.1",
         "format-duration": "^3.0.2",
         "git-rev-sync": "^3.0.2",
-        "node-widevine": "https://github.com/wangziyingwen/node-widevine",
+        "node-widevine": "^0.1.3",
         "parse-hls": "^1.0.7",
         "pssh-tools": "^1.2.0",
         "source-map-support": "^0.5.21",

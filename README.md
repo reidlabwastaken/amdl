@@ -16,13 +16,15 @@ a self-hostable web-ui apple music downloader widevine decryptor with questionab
 
 ### config
 
-most of the config is talked on in [`config.example.toml`](./config.example.toml), just copy it over to `config.toml` and go wild! i tried to make the error reporting for invalid configurations pretty good and digestable
+most of the config is talked on in [`config.example.toml`](./config.example.toml), just copy it over to `config.toml` and go wild! if you don't it will automatically be copied over on your first run. i tried to make the error reporting for invalid configurations pretty good and digestable
+
+one caveat--if using the nix package, it will NOT be automatically copied over due to not being embedded in the program itself, and rather it copying over a file from the pwd (which obviously won't work if you're not in it)
 
 ### running
 
 just as easy as running `npm run build` and running the `dist/index.js` file with your javascript engine of choice
 
-alternatively, use the nix flake, which is currently broken due to an issue outside of my control (i can fix this by publishing a fork of `node-widevine` to the npm registry, but oh well, i'll do that eventually)
+alternatively, use the nix flake, which has the proper `mainProgram` and default package attributes to make it easy. a nixos module is on its way!! don't fret
 
 ## limitations / the formats
 

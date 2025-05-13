@@ -41,7 +41,7 @@ const envSchema = z.object({
 export let defaultConfig = false;
 if (!fs.existsSync("config.toml")) {
     if (!fs.existsSync("config.example.toml")) {
-        log.error("config.toml AND config.example.toml not found?? stop this tomfoolery at once");
+        log.error("no available config file!");
         process.exit(1);
     }
     log.warn("config.toml not found, copying over config.example.toml");

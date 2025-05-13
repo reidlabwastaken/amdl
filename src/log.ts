@@ -37,7 +37,7 @@ function timePrefix(): string {
 }
 function stackPrefix(): string {
     // little tidbit: this does not work on *some* engines (v8 stack format)
-    // i think bun will work, i think deno will not
+    // i think bun will work, i think deno will not??
     const frame = sourceMapSupport.wrapCallSite(callsites()[3] as sourceMapSupport.CallSite);
 
     const file = frame.getFileName();
@@ -46,9 +46,15 @@ function stackPrefix(): string {
 
     if (file === null || line === null || column === null) { return chalk.gray("unknown caller!"); }
 
-    const filePatched = `${path.relative(process.cwd(), fileURLToPath(file))}`;
+    // TODO: optimize this -- probably not very great currently
+    const relative = path.relative(process.cwd(), fileURLToPath(file));
+    const parts = relative.split(path.sep);
+    const srcIndex = parts.indexOf("src");
+    const formatted = srcIndex !== -1
+        ? path.join(...parts.slice(srcIndex))
+        : relative;
 
-    return chalk.gray(`${filePatched}:${line}:${column}`);
+    return chalk.gray(`${formatted}:${line}:${column}`);
 }
 function levelPrefix(level: Level): string {
     const highestLevelLength = Math.max(...Object.values(levelNames).map(n => n.length));

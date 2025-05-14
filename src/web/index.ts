@@ -1,15 +1,12 @@
 import * as log from "../log.js";
 import express, { type NextFunction, type Request, type Response } from "express";
 import { create } from "express-handlebars";
-import gitRevSync from "git-rev-sync";
 import formatDuration from "format-duration";
 import { back, front } from "./endpoints/index.js";
 import { ZodError } from "zod";
 import { fromZodError } from "zod-validation-error";
 import { AxiosError } from "axios";
-
-const rev = gitRevSync.short("./");
-const dirty = gitRevSync.isDirty();
+import { env } from "../config.js";
 
 export class HttpException extends Error {
     public readonly status?: number;
@@ -27,8 +24,6 @@ const hbs = create({
         add(a: number, b: number) { return a + b; },
         arrayJoin(array: string[], separator: string) { return array.join(separator); },
         formatDuration(duration: number) { return formatDuration(duration); },
-        gitRev() { return rev; },
-        gitDirty() { return dirty; },
         greaterThan(a: number, b: number) { return a > b; },
         mapNumberToLetter(num: number) { return String.fromCharCode(num + 64); } // A = 1, B = 2
     }
@@ -38,9 +33,9 @@ app.set("trust proxy", ["loopback", "uniquelocal"]);
 
 app.engine("handlebars", hbs.engine);
 app.set("view engine", "handlebars");
-app.set("views", "./views");
+app.set("views", env.VIEWS_DIR);
 
-app.use("/", express.static("./public"));
+app.use("/", express.static(env.PUBLIC_DIR));
 app.get("/favicon.ico", (_req, res) => { res.status(301).location("/favicon.png").send(); });
 
 back.forEach((route) => { app.use("/api", route); });

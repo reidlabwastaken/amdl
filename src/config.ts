@@ -32,7 +32,9 @@ const envSchema = z.object({
     MEDIA_USER_TOKEN: z.string(),
     ITUA: z.string(),
     WIDEVINE_CLIENT_ID: z.string(),
-    WIDEVINE_PRIVATE_KEY: z.string()
+    WIDEVINE_PRIVATE_KEY: z.string(),
+    VIEWS_DIR: z.string().default("./views"),
+    PUBLIC_DIR: z.string().default("./public")
 });
 
 // check that `config.toml` actually exists

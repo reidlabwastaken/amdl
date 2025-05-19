@@ -24,9 +24,15 @@ most of the config is talked on in [`config.example.toml`](./config.example.toml
 
 ### running
 
-just as easy as running `npm run build` and running the `dist/index.js` file with your javascript engine of choice
+#### regular
 
-alternatively, use the nix flake, which has the proper `mainProgram` and default package attributes to make it easy. a nixos module is on its way!! don't fret
+after configuring, it's just as easy as running `npm run build` and running the `dist/index.js` file with your javascript engine of choice
+
+#### nix
+
+a system module is provided for your convenience, and the main output is `nixosModules.default`
+
+after importing this module, the option `services.amdl` will show up, which is documented in [`flake.nix`](./flake.nix) somewhat well. everything under the `config` tree follows the `config.toml` well, along with everything under the `env` tree. defaults are provided for everything that isn't the private keys and client ids inside of the env section. make sure to set those!!
 
 ## limitations / the formats
 

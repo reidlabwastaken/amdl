@@ -32,11 +32,11 @@ after configuring, it's just as easy as running `npm run build` and running the 
 
 a system module is provided for your convenience, and the main output is `nixosModules.default`
 
-after importing this module, the option `services.amdl` will show up, which is documented in [`flake.nix`](./flake.nix) somewhat well. everything under the `config` tree follows the `config.toml` well, along with everything under the `env` tree. defaults are provided for everything that isn't the private keys and client ids inside of the env section. make sure to set those!!
+after importing this module, the option `services.amdl` will show up, which is documented in [`flake.nix`](./flake.nix) somewhat well. everything under the `config` tree follows the `config.toml` well, along with everything under the `env` tree. defaults are provided for everything that isn't the ITUA inside of the env section. make sure to set those!!
 
 ## limitations / the formats
 
-currently you can only get basic widevine ones, everything related to playready and fairplay encryption methods are not supported, sorry!! someday i will get this working, at least for playready. it's just that no one has written a library yet but has for python (yuck!!)
+currently you can only get basic widevine ones, everything related to playready and fairplay encryption methods are not supported, sorry!! someday i will get this working, at least for playready. it's just that no one has written a library yet but has for python (yuck!!) lossless audio is unfortunately out of the question currently. it will be a while till someone breaks fairplay drm
 
 guaranteed formats to work include:
 

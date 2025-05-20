@@ -1,3 +1,9 @@
+// https://developer.apple.com/documentation/applemusicapi/descriptionattribute
+export interface DescriptionAttribute {
+    short?: string
+    standard: string
+}
+
 // https://developer.apple.com/documentation/applemusicapi/artwork
 export interface Artwork {
     bgColor?: string

@@ -1,6 +1,6 @@
 import axios, { type AxiosInstance } from "axios";
 import { ampApiUrl, appleMusicHomepageUrl, licenseApiUrl, webplaybackApiUrl } from "../constants/urls.js";
-import type { GetSongResponse, SearchResponse } from "./types/responses.js";
+import type { GetPlaylistResponse, GetSongResponse, SearchResponse } from "./types/responses.js";
 import type { AlbumAttributesExtensionTypes, AnyAttributesExtensionTypes, SongAttributesExtensionTypes } from "./types/extensions.js";
 import { getToken } from "./token.js";
 import { config, env } from "../config.js";
@@ -50,9 +50,29 @@ export default class AppleMusicApi {
         })).data;
     }
 
+    // TODO: make it so you can get more than the first 100 tracks
+    // you can't since it's entirely undocumented
+    // and the "trivial" way simply throws a 400, which is awesome
+    async getPlaylist<
+        T extends SongAttributesExtensionTypes = [],
+        U extends RelationshipTypes<T> = ["tracks"]
+    > (
+        id: string,
+        extend: T = [] as never as T,
+        relationships: U = ["tracks"] as U
+    ): Promise<GetPlaylistResponse<T, U>> {
+        return (await this.http.get<GetPlaylistResponse<T, U>>(`/v1/catalog/${this.storefront}/playlists/${id}`, {
+            params: {
+                extend: extend.join(","),
+                include: relationships.join(",")
+            }
+        })).data;
+    }
+
     async getSong<
         // TODO: possibly make this any, and use the addScopingParameters function?
         // would be a bit cleaner, almost everywhere, use above in `getAlbum` perchancibly
+        // and `getPlaylst`.... maybe just rewrite the whole thing at this point,, scoping parameters are my OPP
         T extends SongAttributesExtensionTypes = ["extendedAssetUrls"],
         U extends RelationshipTypes<T> = ["albums"]
     > (

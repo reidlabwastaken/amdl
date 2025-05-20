@@ -28,6 +28,27 @@ export interface GetAlbumResponse<
     }[]
 }
 
+// https://developer.apple.com/documentation/applemusicapi/get-a-catalog-playlist
+export interface GetPlaylistResponse<
+    T extends SongAttributesExtensionTypes,
+    U extends RelationshipTypes<T>
+> {
+    // https://developer.apple.com/documentation/applemusicapi/playlists
+    data: {
+        id: string
+        type: "playlists"
+        href: string
+        // https://developer.apple.com/documentation/applemusicapi/playlists/attributes-data.dictionary
+        attributes: SongAttributes<T>
+        // https://developer.apple.com/documentation/applemusicapi/playlists/relationships-data.dictionary
+        relationships: {
+            [K in U[number]]: Relationship<
+                K extends RelationshipType<T> ? RelationshipTypeMap<T>[K] : never
+            >
+        }
+    }[]
+}
+
 // https://developer.apple.com/documentation/applemusicapi/get-a-catalog-song
 export interface GetSongResponse<
     T extends SongAttributesExtensionTypes,

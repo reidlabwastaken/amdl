@@ -5,7 +5,7 @@ import axios from "axios";
 import { widevine, playready, fairplay } from "../constants/keyFormats.js";
 import { songCodecRegex } from "../constants/codecs.js";
 import type { WebplaybackResponse } from "appleMusicApi/index.js";
-import { RegularCodec, WebplaybackCodec } from "./index.js";
+import type { RegularCodecType, WebplaybackCodecType } from "./codecType.js";
 
 // why is this private
 // i wish pain on the person who wrote this /j :smile:
@@ -34,7 +34,8 @@ export default class StreamInfo {
 
     // TODO: why can't we decrypt widevine ones with this?
     // we get a valid key.. but it doesn't work :-(
-    public static async fromTrackMetadata(trackMetadata: SongAttributes<["extendedAssetUrls"]>, codec: RegularCodec): Promise<StreamInfo> {
+    // upd: it seems thats just how the cookie crumbles. oh well
+    public static async fromTrackMetadata(trackMetadata: SongAttributes<["extendedAssetUrls"]>, codec: RegularCodecType): Promise<StreamInfo> {
         log.warn("the track metadata method is experimental, and may not work or give correct values!");
         log.warn("if there is a failure--use a codec that uses the webplayback method");
 
@@ -70,12 +71,12 @@ export default class StreamInfo {
 
     // webplayback is the more "legacy" way
     // only supports widevine, from what i can tell
-    public static async fromWebplayback(webplayback: WebplaybackResponse, codec: WebplaybackCodec): Promise<StreamInfo> {
+    public static async fromWebplayback(webplayback: WebplaybackResponse, codec: WebplaybackCodecType): Promise<StreamInfo> {
         const song = webplayback.songList[0];
 
         let flavor: string;
-        if (codec === WebplaybackCodec.AacHeLegacy) { flavor = "32:ctrp64"; }
-        else if (codec === WebplaybackCodec.AacLegacy) { flavor = "28:ctrp256"; }
+        if (codec === "aac_he_legacy") { flavor = "32:ctrp64"; }
+        else if (codec === "aac_legacy") { flavor = "28:ctrp256"; }
 
         const asset = song.assets.find((asset) => { return asset.flavor === flavor; });
         if (asset === undefined) { throw new Error("webplayback info for requested flavor doesn't exist!"); }
@@ -141,7 +142,7 @@ function getAssetInfos(m3u8Data: M3u8): AssetInfos {
     throw new Error("m3u8 missing audio asset metadata!");
 }
 
-async function getPlaylist(m3u8Data: M3u8, codec: RegularCodec): Promise<Item> {
+async function getPlaylist(m3u8Data: M3u8, codec: RegularCodecType): Promise<Item> {
     const masterPlaylists = m3u8Data.streamRenditions;
     const masterPlaylist = masterPlaylists.find((playlist) => {
         const line = playlist.properties[0].attributes?.audio;

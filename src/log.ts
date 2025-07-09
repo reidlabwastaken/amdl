@@ -46,7 +46,6 @@ function stackPrefix(): string {
 
     if (file === null || line === null || column === null) { return chalk.gray("unknown caller!"); }
 
-    // TODO: optimize this -- probably not very great currently
     const relative = path.relative(process.cwd(), fileURLToPath(file));
     const parts = relative.split(path.sep);
     const srcIndex = parts.indexOf("src");

@@ -2,8 +2,9 @@ import { config } from "../config.js";
 import { spawn } from "node:child_process";
 import path from "node:path";
 import { addToCache, isCached } from "../cache.js";
+import type { RegularCodecType, WebplaybackCodecType } from "./codecType.js";
 
-export async function downloadSong(streamUrl: string, decryptionKey: string, songCodec: RegularCodec | WebplaybackCodec): Promise<string> {
+export async function downloadSong(streamUrl: string, decryptionKey: string, songCodec: RegularCodecType | WebplaybackCodecType): Promise<string> {
     let baseOutputName = streamUrl.match(/(?:.*\/)\s*(\S*?)[.?]/)?.[1];
     if (!baseOutputName) { throw new Error("could not get base output name from stream url!"); }
     baseOutputName += `_${songCodec}`;
@@ -52,22 +53,4 @@ export async function downloadSong(streamUrl: string, decryptionKey: string, son
     addToCache(decryptedName);
 
     return decryptedPath;
-}
-
-// TODO: find a better spot for this
-export enum RegularCodec {
-    Aac = "aac",
-    AacHe = "aac_he",
-    AacBinaural = "aac_binaural",
-    AacDownmix = "aac_downmix",
-    AacHeBinaural = "aac_he_binaural",
-    AacHeDownmix = "aac_he_downmix",
-    Atmos = "atmos",
-    Ac3 = "ac3",
-    Alac = "alac"
-}
-
-export enum WebplaybackCodec {
-    AacLegacy = "aac_legacy",
-    AacHeLegacy = "aac_he_legacy"
 }
